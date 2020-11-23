@@ -1,13 +1,7 @@
 import torch.nn as nn
-# import torch.utils.model_zoo as model_zoo
-# from torch.nn.parameter import Parameter
 import torch
-import time
-# import torch.nn.functional as F
-# from torch.nn import init
-# from torch.autograd import Variable
-# from collections import OrderedDict
-# import math
+# import time
+
 __all__ = ['old_resnet18', 'old_resnet34', 'old_resnet50', 'old_resnet101',
            'old_resnet152']
 
@@ -207,21 +201,9 @@ def old_resnet152(pretrained=False, **kwargs):
 
 
 def demo():
-    st = time.perf_counter()
-    for i in range(100):
-        net = old_resnet50(num_classes=1000)
-        y = net(torch.randn(2, 3, 224,224))
-        print(y.size())
-    print("CPU time: {}".format(time.perf_counter() - st))
+    net = old_resnet50(num_classes=1000)
+    y = net(torch.randn(2, 3, 224,224))
+    print(y.size())
 
-def demo2():
-    st = time.perf_counter()
-    for i in range(100):
-        net = old_resnet50(num_classes=1000).cuda()
-        y = net(torch.randn(2, 3, 224,224).cuda())
-        print(y.size())
-    print("CPU time: {}".format(time.perf_counter() - st))
-
-# demo()
-# demo2()
+demo()
 

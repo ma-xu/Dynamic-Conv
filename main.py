@@ -29,7 +29,7 @@ import torch.distributed as dist
 import torch.optim
 import torch.utils.data
 import torch.utils.data.distributed
-import models_imagenet as models
+import models as models
 from utils import Logger, mkdir_p
 
 
