@@ -1,6 +1,11 @@
 """
 The implementation of dy_conv2d is borrowed from
 https://github.com/kaijieshi7/Dynamic-convolution-Pytorch/blob/master/dynamic_conv.py
+Updated: I slightly re-organized the implementation for fast training,
+which could be totally converted to the original implementation.
+
+For temperature, we didn't consider the temperature annealing for easy implementation and set temperature to 34.
+Moreover, introducing the annealing only imporves the accuracy by 0.5 reported in paper Table 6.
 """
 import torch.nn as nn
 import torch
@@ -43,7 +48,6 @@ class attention2d(nn.Module):
     def updata_temperature(self):
         if self.temperature!=1:
             self.temperature -=3
-            print('Change temperature to:', str(self.temperature))
 
 
     def forward(self, x):
@@ -103,17 +107,54 @@ class Dynamic_conv2d(nn.Module):
         return output
 
 
+class DyConv(nn.Module):
+    def __init__(self,in_channels, out_channels, kernel_size, stride=1, padding=0, dilation=1, groups=1,
+                 bias=False, padding_mode='zeros', ratio=0.25, temperature=34):
+        super(DyConv, self).__init__()
+        self.temperature = temperature
+        # default 3 experts for fair comparison.
+        self.conv1 = nn.Conv2d(in_channels, out_channels, kernel_size, stride, padding,
+                               dilation, groups, bias, padding_mode)
+        self.conv2 = nn.Conv2d(in_channels, out_channels, kernel_size, stride, padding,
+                               dilation, groups, bias, padding_mode)
+        self.conv3 = nn.Conv2d(in_channels, out_channels, kernel_size, stride, padding,
+                               dilation, groups, bias, padding_mode)
+        hidden_planes = int(in_channels * ratio) + 1 if in_channels!=3 else 3
+        self.fc = nn.Sequential(
+            nn.Linear(in_channels, hidden_planes, bias=False),
+            nn.ReLU(inplace=True),
+            nn.Linear(hidden_planes, 3, bias=True)
+        )
+
+    def update_temperature(self):
+        if self.temperature != 1:
+            self.temperature -=3
+            print('Change temperature to:', str(self.temperature))
+
+    def forward(self, x):
+        gap = F.adaptive_avg_pool2d(x, 1).squeeze(dim=-1).squeeze(dim=-1)  # [b,c]
+        router = self.fc(gap)/self.temperature  # [b,c]
+        router = torch.softmax(router, dim=1).unsqueeze(dim=-1).unsqueeze(dim=-1).unsqueeze(dim=-1)  # [b,3,1,1,1]
+        out1 = self.conv1(x).unsqueeze(dim=1)  # [b,1,c,w,h]
+        out2 = self.conv2(x).unsqueeze(dim=1)  # [b,1,c,w,h]
+        out3 = self.conv3(x).unsqueeze(dim=1)  # [b,1,c,w,h]
+        out = torch.cat([out1, out2, out3], dim=1)
+        out = (out*router).sum(dim=1, keepdim=False)  # [b,c,w,h]
+        return out
+
+
+
 
 def conv3x3(in_planes, out_planes, stride=1):
     """3x3 convolution with padding"""
     # return nn.Conv2d(in_planes, out_planes, kernel_size=3, stride=stride, padding=1, bias=False)
-    return Dynamic_conv2d(in_planes, out_planes, kernel_size=3, stride=stride, padding=1, bias=False)
+    return DyConv(in_planes, out_planes, kernel_size=3, stride=stride, padding=1, bias=False)
 
 
 def conv1x1(in_planes, out_planes, stride=1):
     """1x1 convolution"""
     # return nn.Conv2d(in_planes, out_planes, kernel_size=1, stride=stride, bias=False)
-    return Dynamic_conv2d(in_planes, out_planes, kernel_size=1, stride=stride, bias=False, )
+    return DyConv(in_planes, out_planes, kernel_size=1, stride=stride, bias=False )
 
 
 class BasicBlock(nn.Module):
