@@ -1,11 +1,5 @@
 """
-The implementation of dy_conv2d is borrowed from
-https://github.com/kaijieshi7/Dynamic-convolution-Pytorch/blob/master/dynamic_conv.py
-Updated: I slightly re-organized the implementation for fast training,
-which could be totally converted to the original implementation.
-
-For temperature, we didn't consider the temperature annealing for easy implementation and set temperature to 34.
-Moreover, introducing the annealing only imporves the accuracy by 0.5 reported in paper Table 6.
+Coop-Conv from Kien
 """
 import torch.nn as nn
 import torch
