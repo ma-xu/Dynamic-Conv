@@ -21,7 +21,7 @@ from torch.autograd import Variable
 from torchvision import transforms
 import sys
 sys.path.append('../')
-import models_imagenet as models
+import models as models
 
 model_names = sorted(name for name in models.__dict__
                      if name.islower() and not name.startswith("__")
@@ -125,10 +125,10 @@ def main(ctx):
 
 
 @main.command()
-@click.option("-i", "--image-paths", default={'cat1.jpg'}, type=str, multiple=True, required=True)
-@click.option("-a", "--arch", default="spa_resnet50", type=click.Choice(model_names), required=True)
-@click.option("-c", "--checkpoint", default="/home/g1007540910/checkpoints/imagenet/", type=str, required=True)
-@click.option("-t", "--target-layer", default="layer4", type=str, required=True)
+@click.option("-i", "--image-paths", default={'dog.jpeg'}, type=str, multiple=True, required=True)
+@click.option("-a", "--arch", default="coopconv_resnet18", type=click.Choice(model_names), required=True)
+@click.option("-c", "--checkpoint", default="/home/g1007540910/Dynamic-Conv/checkpoints/imagenet/", type=str, required=True)
+@click.option("-t", "--target-layer", default="layer4.1.conv1", type=str, required=True)
 @click.option("-k", "--topk", type=int, default=1)
 @click.option("-d", "--distribute", type=int, default=1)
 @click.option("-o", "--output-dir", type=str, default="./results")
