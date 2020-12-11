@@ -1,19 +1,3 @@
-"""
-ImageNet training script.
-Including APEX (distributed training), and DALI(data pre-processing using CPU+GPU) provided by NIVIDIA.
-Thanks pytorch demo, implus (Xiang Li from NJUST), DALI.
-Author: Xu Ma
-Date: Aug/15/2019
-Email: xuma@my.unt.edu
-
-Useage:
-python3 -m torch.distributed.launch --nproc_per_node=8 main.py -a old_resnet50 --fp16 --b 32
-
-
-
-"""
-
-
 import argparse
 import os
 import shutil

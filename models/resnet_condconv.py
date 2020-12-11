@@ -15,66 +15,7 @@ from torch.nn.parameter import Parameter
 
 __all__ = ['condconv_resnet18', 'condconv_resnet34', 'condconv_resnet50', 'condconv_resnet101',
            'condconv_resnet152']
-
-
-# class _routing(nn.Module):
-#
-#     def __init__(self, in_channels, num_experts, dropout_rate):
-#         super(_routing, self).__init__()
-#
-#         self.dropout = nn.Dropout(dropout_rate)
-#         self.fc = nn.Linear(in_channels, num_experts)
-#
-#     def forward(self, x):
-#         x = torch.flatten(x)
-#         x = self.dropout(x)
-#         x = self.fc(x)
-#         return torch.sigmoid(x)
-#
-#
-# class CondConv2D(_ConvNd):
-#     def __init__(self, in_channels, out_channels, kernel_size, stride=1,
-#                  padding=0, dilation=1, groups=1,
-#                  bias=True, padding_mode='zeros', num_experts=3, dropout_rate=0.2):
-#         kernel_size = _pair(kernel_size)
-#         stride = _pair(stride)
-#         padding = _pair(padding)
-#         dilation = _pair(dilation)
-#         super(CondConv2D, self).__init__(
-#             in_channels, out_channels, kernel_size, stride, padding, dilation,
-#             False, _pair(0), groups, bias, padding_mode)
-#
-#         self._avg_pooling = functools.partial(F.adaptive_avg_pool2d, output_size=(1, 1))
-#         self._routing_fn = _routing(in_channels, num_experts, dropout_rate)
-#
-#         self.weight = Parameter(torch.Tensor(
-#             num_experts, out_channels, in_channels // groups, *kernel_size))
-#
-#         self.reset_parameters()
-#
-#     def _conv_forward(self, input, weight):
-#         if self.padding_mode != 'zeros':
-#             return F.conv2d(F.pad(input, self._padding_repeated_twice, mode=self.padding_mode),
-#                             weight, self.bias, self.stride,
-#                             _pair(0), self.dilation, self.groups)
-#         return F.conv2d(input, weight, self.bias, self.stride,
-#                         self.padding, self.dilation, self.groups)
-#
-#     def forward(self, inputs):
-#         b, _, _, _ = inputs.size()
-#         res = []
-#         for input in inputs:
-#             input = input.unsqueeze(0)
-#             pooled_inputs = self._avg_pooling(input)
-#             routing_weights = self._routing_fn(pooled_inputs)
-#             kernels = torch.sum(routing_weights[:, None, None, None, None] * self.weight, 0)
-#             out = self._conv_forward(input, kernels)
-#             res.append(out)
-#         return torch.cat(res, dim=0)
-#
-
-
-
+           
 class CondConv(nn.Module):
     def __init__(self,in_channels, out_channels, kernel_size, stride=1, padding=0, dilation=1, groups=1,
                  bias=False, padding_mode='zeros', dropout_rate=0.2):

@@ -1,6 +1,5 @@
 import torch.nn as nn
 import torch
-# import time
 
 __all__ = ['old_resnet18', 'old_resnet34', 'old_resnet50', 'old_resnet101',
            'old_resnet152']
