@@ -1,12 +1,9 @@
 """
-Coop-Conv from Kien
+CoConv
 """
 import torch.nn as nn
 import torch
 import torch.nn.functional as F
-
-
-
 
 __all__ = ['coopconv_resnet18', 'coopconv_resnet34', 'coopconv_resnet50', 'coopconv_resnet101',
            'coopconv_resnet152']
